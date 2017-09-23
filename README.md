@@ -1,5 +1,5 @@
 # curses-twitter
-an twitter client run on terminal, made in Ruby, use curses library
+an twitter client runs on terminal, made in Ruby, use curses library
 
 ## 動作確認環境（20170923時点）
 + Xubuntu 16.04 64bit
