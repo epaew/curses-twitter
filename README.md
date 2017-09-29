@@ -11,7 +11,7 @@ an twitter client runs on terminal, made in Ruby, use curses library
 
 ## 起動方法
 1. configの変更
-    + `config/config/rb`の内容を変更します。  
+    + `config/config.rb`の内容を変更します。  
 https://dev.twitter.com/ に登録して「Create New App」した後以下の4つを発行してください。
         + Consumer Key
         + Consumer Secret
@@ -71,7 +71,7 @@ https://dev.twitter.com/ に登録して「Create New App」した後以下の4�
 |（Esc）|入力された内容を破棄し、通常モードに移行|
 |tl, timeline|通常タイムラインを画面に表示|
 |reply, mention|自分宛てのメンション付きツイートを画面に表示|
-|user [screen_name]|ユーザ[screen_name]のホームタイムラインを表示（@の付与は任意）|
+|user<code>&nbsp;</code>[screen_name]|ユーザ[screen_name]のホームタイムラインを表示（@の付与は任意）|
 |w|ツイート入力モードで編集したツイート内容をサーバに送信|
 |q|アプリケーションを終了し、シェルに戻る|
 
