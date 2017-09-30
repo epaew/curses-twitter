@@ -18,6 +18,9 @@ class MainHandler < Handler
       return NumberHandler.new(wins, input_ch)
     when ?a, ?i then # edit tweet buffer
       return EditHandler.new(wins)
+    when ?G then
+      # move top
+      wins[:display].move_top
     when ?h, Curses::Key::LEFT then
       # move left
       # do nothing
@@ -30,13 +33,9 @@ class MainHandler < Handler
     when ?l, Curses::Key::RIGHT then
       # move right
       # do nothing
-    when ?G then
-      # move top
-      wins[:display].move_top
     when ?u then
       # update timeline
-      wins[:status].display(Core.instance.update(wins[:display].mode))
-      wins[:display].display()
+      wins[:status].display(wins[:display].update())
     when ?: then
       # other command
       return CommandHandler.new(wins)
