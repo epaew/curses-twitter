@@ -14,6 +14,7 @@ Curses.init_screen
 Curses.cbreak
 Curses.noecho      # disable stdout, stderr
 Curses.start_color # enable coloring
+Curses.use_default_colors
 
 wins = Hash.new
 wins[:default] = Curses.stdscr # standard screen
