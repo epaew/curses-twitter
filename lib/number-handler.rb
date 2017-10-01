@@ -34,6 +34,18 @@ class NumberHandler < Handler
     when ?G then
       # jump cursor to the entered number
       wins[:display].move_cursor(@buf.to_i)
+    when ?h, Curses::Key::LEFT then
+      # move left
+      # do nothing
+    when ?j, Curses::Key::DOWN then
+      # move down
+      wins[:display].down_cursor(@buf.to_i)
+    when ?k, Curses::Key::UP then
+      # move up
+      wins[:display].up_cursor(@buf.to_i)
+    when ?l, Curses::Key::RIGHT then
+      # move right
+      # do nothing
     when ?r then
       # edit tweet buffer with reply
       return EditHandler.new(wins, @buf.to_i)

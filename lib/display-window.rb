@@ -74,6 +74,12 @@ class DisplayWindow
     @window.refresh
   end
 
+  def update()
+    msg = Core.instance.update(@mode)
+    display()
+    return msg
+  end
+
   def mode_change(str)
     begin
       case str.to_sym
@@ -98,14 +104,26 @@ class DisplayWindow
     return "fetched #{str}"
   end
 
-  def up_cursor
-    @cursor_num += 1 if @cursor_num < @str_array.length
-    self.display()
+  def up_cursor(num = nil)
+    if num then
+      num.to_i.times do
+        up_cursor()
+      end
+    else
+      @cursor_num += 1 if @cursor_num < @str_array.length
+      self.display()
+    end
   end
 
-  def down_cursor
-    @cursor_num -= 1 if @cursor_num > 0
-    self.display()
+  def down_cursor(num = nil)
+    if num then
+      num.to_i.times do
+        down_cursor()
+      end
+    else
+      @cursor_num -= 1 if @cursor_num > 0
+      self.display()
+    end
   end
 
   def move_cursor(num)
