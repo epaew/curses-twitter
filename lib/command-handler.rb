@@ -27,6 +27,8 @@ class CommandHandler < Handler
     when 127, Curses::Key::BACKSPACE then
       # backspace
       @cmd_buf.chop!
+    when Fixnum then
+      # nothing to do
     else
       self.buffer_command(input_ch)
     end

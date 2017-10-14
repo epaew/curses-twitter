@@ -39,6 +39,8 @@ class MainHandler < Handler
     when ?: then
       # other command
       return CommandHandler.new(wins)
+    when Fixnum then
+      # nothing to do when other Fixnum keys
     end
     return self
   end

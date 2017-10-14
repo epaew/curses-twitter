@@ -30,6 +30,8 @@ class EditHandler < Handler
     when 127, Curses::Key::BACKSPACE then
       # backspace
       wins[:tweet].buffer_delete()
+    when Fixnum then
+      # nothing to do
     else
       if input_ch.class == String
         wins[:tweet].buffer_add(input_ch)
