@@ -21,6 +21,7 @@ class Core
       config.access_token_secret = AppConfig::ACCESS_TOKEN_SECRET
     end
 
+    @users = Hash.new
     @lists = Hash.new
     self.fetch_timeline()
     self.fetch_mention()
@@ -126,7 +127,7 @@ class Core
           @rest_client.home_timeline(:count => 100).reverse
       else
         new_tl = @rest_client.home_timeline(:count => 100,
-          :since_id => @lists[:timeline][@lists[:timeline].length - 1].id
+          :since_id => @lists[:timeline].last.id
         ).reverse
         if new_tl.length < 100
           @lists[:timeline] += new_tl
@@ -147,10 +148,10 @@ class Core
         @lists[:mention] = @rest_client.mentions(:count => 100).reverse
       else
         new_mention = @rest_client.mentions(:count => 100,
-          :since_id => @lists[:mention][@lists[:mention].length - 1].id
+          :since_id => @lists[:mention].last.id
         ).reverse
         if new_mention.length < 100
-          @lists[:mention] += new_mention.
+          @lists[:mention] += new_mention
         else
           @lists[:mention] = new_mention
         end
@@ -164,8 +165,23 @@ class Core
 
   def fetch_usertimeline(user)
     begin
-      @lists[user.to_sym] =
-        @rest_client.user_timeline(user, :count => 100).reverse
+      @users[user.to_sym] =
+        @rest_client.user(user.to_s)
+
+      if @lists[user.to_sym] == nil then
+        @lists[user.to_sym] =
+          @rest_client.user_timeline(user.to_s, :count => 100).reverse
+      else
+        new_user_tl = @rest_client.user_timeline(user.to_s,
+          :count => 100,
+          :since_id => @lists[user.to_sym].last.id
+        ).reverse
+        if new_user_tl.length < 100
+          @lists[user.to_sym] += new_user_tl
+        else
+          @lists[user.to_sym] = new_user_tl
+        end
+      end
     rescue => e
       e.backtrace
       return "fetching #{user} failed."
@@ -180,15 +196,36 @@ class Core
 
   def get_str_array(mode)
     str_array = Array.new
-    @lists[mode].each.with_index do |t, idx|
-      str_array.push(
-        "#{"%4d" % idx}:--- #{t.user.name}(@#{t.user.screen_name})" +
-        " --- #{t.user.protected? ? "" : ""}\n#{t.text}\n" +
-        " --- via:#{t.source.match(/>(?<name>.*)</)[:name]}" +
-        " --- RT: #{t.retweet_count}" +
-        " #{t.favorited? ? "★" : "☆"}: #{t.favorite_count}".chomp
-      )
-    end unless @lists[mode] == nil
+
+    unless @lists[mode] == nil
+      @lists[mode].each.with_index do |t, idx|
+        str_array.push(
+          "#{"%5d" % idx}:--- #{t.user.name}(@#{t.user.screen_name})" +
+          " --- #{t.user.protected? ? "" : ""}\n" +
+          "#{t.text}\n" +
+          "--- RT:#{"%5d" % t.retweet_count}" +
+          " / #{t.favorited? ? "★" : "☆"}:#{"%5d" % t.favorite_count}" +
+          " / at:#{t.created_at.getlocal.asctime}" +
+          " / via:#{t.source.match(/>(?<name>.*)</)[:name]}" +
+          " ---".chomp
+        )
+      end
+
+      # insert user profile if display mode is user_timeline
+      if mode.to_s =~ /^@.*/ then
+        u = @users[mode]
+        str_array.push(
+          "----- Detail of #{u.name}(@#{u.screen_name}) -----\n" +
+          "bio: #{u.description}\n" +
+          if u.website? then "URL: #{u.website}\n" else "" end +
+          "\n" +
+          "# of follow  : #{u.friends_count}\n" +
+          "# of follower: #{u.followers_count}\n" +
+          "# of tweets  : #{u.tweets_count}\n" +
+          "----- Latest tweets -----\n"
+        )
+      end
+    end
     return str_array
   end
 end

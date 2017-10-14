@@ -4,6 +4,9 @@
 require_relative 'core'
 
 class DisplayWindow
+
+  LEFT_OFFSET = 6
+
   attr_reader :mode
   def maxx
     return @window.maxx
@@ -29,6 +32,8 @@ class DisplayWindow
   def split_screen_width(string)
     count = 0
     array = []
+    max_width = @window.maxx - LEFT_OFFSET
+
     string.each_char.with_index do |ch, idx|
       if ch == "\n"
         count = 0
@@ -36,9 +41,9 @@ class DisplayWindow
         count += ch.ascii_only? ? 1 : 2
       end
 
-      if count >= @window.maxx
+      if count >= max_width
         string.insert(idx, "\n")
-        count -= @window.maxx
+        count = 0
       end
     end
 
@@ -53,8 +58,11 @@ class DisplayWindow
     @cursor_num = @str_array.length - 1 if @cursor_num == nil
     @window.clear
 
+    has_profile = @mode.to_s =~ /^@.*/ &&
+      @cursor_num == @str_array.length - 1
+
     # print header
-    idx = 1
+    line_idx = 1
     if @cursor_num < @str_array.length - 1 then
       @window.addstr("Newer tweets are available.")
     else
@@ -62,13 +70,29 @@ class DisplayWindow
     end
 
     # print tweets on window
-    @str_array[0..@cursor_num].reverse_each do |str|
-      self.split_screen_width(str).each do |line|
-        @window.setpos(idx, 0)
+    @str_array[0..@cursor_num].reverse_each do |tw_str|
+      self.split_screen_width(tw_str).each_with_index do |line, idx_in_tw|
+
+        if idx_in_tw == 0 && !has_profile then
+          @window.setpos(line_idx, 0)
+          @window.attron(Curses.color_pair(Curses::COLOR_GREEN))
+        elsif has_profile then
+          @window.setpos(line_idx, 0)
+        else
+          @window.setpos(line_idx, LEFT_OFFSET)
+        end
+
         @window.addstr(line)
-        break if (idx += 1) >= @window.maxy
+
+        if idx_in_tw == 0 then
+          @window.attroff(Curses.color_pair(Curses::COLOR_GREEN))
+        end
+
+        break if (line_idx += 1) >= @window.maxy
       end
-      break if idx >= @window.maxy
+
+      has_profile = false
+      break if line_idx >= @window.maxy
     end
     @window.setpos(1,0)
     @window.refresh
@@ -110,7 +134,7 @@ class DisplayWindow
         up_cursor()
       end
     else
-      @cursor_num += 1 if @cursor_num < @str_array.length
+      @cursor_num += 1 if @cursor_num < @str_array.length - 1
       self.display()
     end
   end

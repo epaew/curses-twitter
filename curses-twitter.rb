@@ -16,6 +16,12 @@ Curses.noecho      # disable stdout, stderr
 Curses.start_color # enable coloring
 Curses.use_default_colors
 
+# As an extension, ncurses allows you to set color pair 0
+# via the assume_default_colors routine,
+# or to specify the use of default colors (color number -1)
+# if you first invoke the use_default_colors routine.
+Curses.init_pair(Curses::COLOR_GREEN, Curses::COLOR_GREEN, -1)
+
 wins = Hash.new
 wins[:default] = Curses.stdscr # standard screen
 wins[:display] = DisplayWindow.new(wins[:default])
