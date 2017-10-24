@@ -30,15 +30,21 @@ class EditHandler < Handler
     when 127, Curses::Key::BACKSPACE then
       # backspace
       wins[:tweet].buffer_delete()
-    when Fixnum then
-      # nothing to do
     else
       if input_ch.class == String
         wins[:tweet].buffer_add(input_ch)
       else
-        @buf += input_ch.chr
-        if @buf.length == 3
-          wins[:tweet].buffer_add(@buf.unpack("U*")[0].chr("UTF-8"))
+        begin
+          # if cursor key is inputted, chr() raises Exception.
+          @buf += input_ch.chr
+
+          if @buf.length == 3
+            # UTF-8
+            wins[:tweet].buffer_add(@buf.unpack("U*")[0].chr("UTF-8"))
+            @buf = ""
+          end
+        rescue => e
+          # reset buffer.
           @buf = ""
         end
       end
